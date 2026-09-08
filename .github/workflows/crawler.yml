@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas lxml html5lib openpyxl
+          pip install requests pandas lxml html5lib openpyxl beautifulsoup4
 
       - name: Run Main Crawler
         run: |
