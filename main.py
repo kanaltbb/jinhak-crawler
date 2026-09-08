@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+import io
 import requests
 import pandas as pd
 
@@ -42,7 +43,9 @@ def get_jinhak_html(url):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     res = requests.get(url, headers=headers, timeout=10)
-    res.encoding = 'utf-8'  # 한글 깨짐 방지
+
+    # 진학사는 euc-kr / ks_c_5601-1987 인코딩을 주로 사용하므로 처리
+    res.encoding = res.apparent_encoding if res.apparent_encoding else 'euc-kr'
     return res.text
 
 
@@ -99,7 +102,9 @@ def run_crawler():
     for url, items in url_map.items():
         try:
             html_text = get_jinhak_html(url)
-            dfs = pd.read_html(html_text)
+
+            # io.StringIO를 사용하여 pandas에 안전하게 넘겨줌 (리눅스 에러 방지)
+            dfs = pd.read_html(io.StringIO(html_text))
 
             for item in items:
                 target_id = item.get('Target_ID')
